@@ -1,6 +1,6 @@
 # Cinebridge · Recommendation & Crew Orchestration Service
 
-[![CI](https://github.com/tirolasca/Cinebridge/actions/workflows/ci.yml/badge.svg)](https://github.com/tirolasca/Cinebridge/actions/workflows/ci.yml)
+[![CI](https://github.com/tirolasca/Cinebridge3/actions/workflows/ci.yml/badge.svg)](https://github.com/tirolasca/Cinebridge3/actions/workflows/ci.yml)
 
 Microsserviço responsável por recomendar e orquestrar a formação de equipes
 técnicas para projetos audiovisuais na plataforma **Cinebridge**. Dado um
