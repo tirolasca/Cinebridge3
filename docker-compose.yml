@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:17.6-alpine
+    container_name: cinebridge-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cinebridge
+      POSTGRES_PASSWORD: cinebridge
+      POSTGRES_DB: cinebridge_recomendacao
+    ports:
+      - "5432:5432"
+    volumes:
+      - cinebridge_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cinebridge -d cinebridge_recomendacao"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cinebridge-recommendation-service
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: cinebridge
+      DB_PASSWORD: cinebridge
+      DB_NAME: cinebridge_recomendacao
+      DB_LOGGING: "false"
+      # Provedores de integração e decoradores do recomendador (valores padrão abaixo;
+      # sobrescreva exportando a variável antes de `docker compose up`).
+      ADAPTADOR_ARMAZENAMENTO: ${ADAPTADOR_ARMAZENAMENTO:-local}
+      ADAPTADOR_PAGAMENTO: ${ADAPTADOR_PAGAMENTO:-stripe}
+      ADAPTADOR_PROFISSIONAL: ${ADAPTADOR_PROFISSIONAL:-interno}
+      RECOMENDACAO_DECORADORES: ${RECOMENDACAO_DECORADORES:-cache,auditoria}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  cinebridge_db_data:

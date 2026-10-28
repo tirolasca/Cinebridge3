@@ -1,0 +1,17 @@
+# Dependências e artefatos gerados
+node_modules/
+dist/
+coverage/
+
+# Variáveis de ambiente locais (use .env.example como modelo)
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# Arquivos de sistema e editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

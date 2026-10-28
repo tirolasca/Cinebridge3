@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Cancela execuções antigas da mesma branch/PR quando chega um novo commit.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Tipos, build e testes (com limite mínimo de cobertura definido no jest.config.js).
+  # Roda nas plataformas suportadas pelo produto: Ubuntu 24.04 e Windows.
+  qualidade:
+    name: Qualidade (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Checagem de tipos (código e testes)
+        run: npm run lint
+
+      - name: Build de produção
+        run: npm run build
+
+      - name: Testes com cobertura
+        run: npm run test:coverage
+
+      - name: Publicar relatório de cobertura
+        if: matrix.os == 'ubuntu-24.04'
+        uses: actions/upload-artifact@v7
+        with:
+          name: cobertura
+          path: coverage
+          retention-days: 14
+
+  # Sobe o ambiente completo exatamente como descrito no README
+  # (`docker compose up --build`): banco PostgreSQL, schema, carga inicial e API.
+  # Em seguida valida a API em execução com o smoke test.
+  docker:
+    name: Docker Compose + smoke test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Subir o ambiente
+        run: docker compose up -d --build
+
+      - name: Smoke test da API
+        run: bash scripts/smoke-test.sh
+
+      - name: Logs dos containers (em caso de falha)
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Derrubar o ambiente
+        if: always()
+        run: docker compose down -v

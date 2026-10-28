@@ -1,0 +1,41 @@
+{
+  "name": "cinebridge-recommendation-service",
+  "version": "1.0.0",
+  "description": "Microsserviço de recomendação e orquestração de equipes - plataforma cinebridge",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/infrastructure/http/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/infrastructure/http/server.ts",
+    "seed": "ts-node-dev --transpile-only --exit-child src/infrastructure/persistence/seed.ts",
+    "test": "jest --runInBand",
+    "test:coverage": "jest --runInBand --coverage",
+    "test:unit": "jest --runInBand test/unit",
+    "test:integration": "jest --runInBand test/integration",
+    "test:smoke": "bash scripts/smoke-test.sh",
+    "lint": "tsc --noEmit -p tsconfig.test.json",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f db",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down -v"
+  },
+  "dependencies": {
+    "fastify": "^5.12.5",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^1.1.1",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^26.6.4",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.14",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "~6.0.3"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}
